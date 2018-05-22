@@ -7,4 +7,9 @@
 #define DLOG \
         QMessageLogger(__FILE__, __LINE__, __func__).debug() << __FILE__ << ":" << __LINE__ << ":" << __func__ << " "
 
+
+#define WLOG \
+        QMessageLogger(__FILE__, __LINE__, __func__).warning() << __FILE__  << ":" << __LINE__ << ":" << __func__ << " "
+
+
 #endif // LOGGER_H

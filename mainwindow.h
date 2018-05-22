@@ -28,9 +28,9 @@ public:
         return _pConsumer;
     }
 
-    void consumerPtr(KafkaConsumer::Ptr ptr) {
+    void init(KafkaConsumer::Ptr ptr, const KafkaConsumer::TopicVec &topics) {
         _pConsumer = ptr;
-        _topics = _pConsumer->topics();
+        _topics = topics;
     }
 
 private:

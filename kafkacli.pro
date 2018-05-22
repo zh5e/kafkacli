@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = isendkafkacli
+TARGET = kafkacli
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -30,14 +30,21 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     connectbrokerdlg.cpp \
-    partitiondetaildlg.cpp
+    partitiondetaildlg.cpp \
+    kafkaconfig.cpp \
+    kafkaconsumer.cpp \
+    kafkaeventcb.cpp \
+    kafkabasicconfig.cpp
 
 HEADERS += \
         mainwindow.h \
     connectbrokerdlg.h \
     kafkaconsumer.h \
     logger.h \
-    partitiondetaildlg.h
+    partitiondetaildlg.h \
+    kafkaconfig.h \
+    kafkaeventcb.h \
+    kafkabasicconfig.h
 
 FORMS += \
         mainwindow.ui \

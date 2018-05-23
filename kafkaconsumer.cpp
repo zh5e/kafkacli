@@ -81,7 +81,7 @@ bool KafkaConsumer::messageAtOffset(const std::string &topic, int partition, int
         return false;
     }
 
-    std::shared_ptr<RdKafka::Message> pMessage(consumerPtr()->consume(1000*5));
+    std::shared_ptr<RdKafka::Message> pMessage(consumerPtr()->consume(1000*10));
     if (pMessage->err() != RdKafka::ERR_NO_ERROR) {
         DLOG << "failed to assign " << pMessage->err() << ", errstr: "
              << pMessage->errstr().c_str();

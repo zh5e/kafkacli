@@ -10,9 +10,14 @@ PartitionDetailDlg::PartitionDetailDlg(KafkaConsumer::Ptr pConsumer,
     , _pConsumer(pConsumer)
     , _topic(topic)
     , _partition(partition)
+    , _low(0)
+    , _high(0)
 {
     ui->setupUi(this);
     ui->messageCountEdit->setReadOnly(true);
+    ui->messageCountEdit->setDisabled(true);
+
+    this->setWindowTitle(QString("%1-%2").arg( topic.c_str()).arg(partition));
 
     initView();
 }
@@ -35,6 +40,9 @@ bool PartitionDetailDlg::initView()
     DLOG << low << " " << high;
     messageCount(high - low);
 
+    _low = low;
+    _high = high;
+
     return true;
 }
 
@@ -48,7 +56,7 @@ void PartitionDetailDlg::messageCount(int64_t value)
     ui->messageCountEdit->setText(QString::number(value));
 }
 
-int64_t PartitionDetailDlg::targetOffset() const
+int64_t PartitionDetailDlg::messageIndex() const
 {
     return ui->targetOffsetEdit->text().toLongLong();
 }
@@ -62,9 +70,13 @@ void PartitionDetailDlg::on_pushButton_clicked()
 {
     std::string message;
     std::string errstr;
+
+    int64_t messageOffset = messageIndex() + _low;
+
+    DLOG << "low: " << _low << ", high: " << _high << ", offset: " << messageOffset;
+
     auto ret = consumerPtr()->messageAtOffset(topic(), partition(),
-                                              targetOffset(), message,
-                                              errstr);
+                                              messageOffset, message, errstr);
     if (!ret) {
         QMessageBox::critical(this, "获取消息失败", QString::fromStdString(errstr),
                               QMessageBox::Ok);

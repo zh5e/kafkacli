@@ -36,6 +36,8 @@ public:
 private:
     void resizeEvent(QResizeEvent *event);
 
+    void resizeClolumsSize();
+
 private slots:
     void on_treeView_doubleClicked(const QModelIndex &index);
 

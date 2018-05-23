@@ -9,31 +9,34 @@
 namespace  {
 void insertTopic2View(QStandardItemModel *pItemModel, int row, const TopicMetadata &topic)
 {
-    auto *pParentItem = new  QStandardItem(
-                              QString::fromStdString(topic.topic));
-    pItemModel->insertRow(row ++, pParentItem );
+    auto *pPartent = new QStandardItem(
+                         QString::fromStdString(topic.topic));
+    pItemModel->insertRow(row, pPartent);
 
     int childRow = 0;
-    for (const auto & partition : topic.partitions) {
-        int column = 1;
-        pParentItem->setChild(childRow, column ++,
-                              new QStandardItem(QString::number(partition.id)));
-        pParentItem->setChild(childRow, column ++,
-                              new QStandardItem(QString::number(partition.leader)));
+
+    for (auto it = topic.partitions.rbegin();
+         it != topic.partitions.rend(); ++ it) {
+
+        QList<QStandardItem*> itemList;
+
+        itemList.push_back(new QStandardItem());
+        itemList.push_back(new QStandardItem(QString::number(it->id)));
+        itemList.push_back(new QStandardItem(QString::number(it->leader)));
 
         QString qs;
-        for (auto p : partition.replicasVector) {
+        for (auto p : it->replicasVector) {
             qs.append(QString::number(p) + ",");
         }
-        pParentItem->setChild(childRow, column ++, new QStandardItem(qs));
+        itemList.push_back(new QStandardItem(qs));
 
         qs.clear();
-        for (auto p : partition.isrsVector) {
+        for (auto p : it->isrsVector) {
             qs.append(QString::number(p) + ",");
         }
-        pParentItem->setChild(childRow, column ++, new QStandardItem(qs));
+        itemList.push_back(new QStandardItem(qs));
 
-        ++ childRow;
+        pPartent->insertRow(childRow, itemList);
     }
 }
 }
@@ -45,11 +48,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->setWindowTitle("主题信息");
 
-    ui->treeView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    // ui->treeView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     ui->treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     QStandardItemModel *pItemModel = new QStandardItemModel(ui->treeView);
     ui->treeView->setModel(pItemModel);
-
 }
 
 MainWindow::~MainWindow()
@@ -66,6 +68,8 @@ bool MainWindow::initTreeView() {
         insertTopic2View(pItemModel, row ++, topic);
     }
 
+    resizeClolumsSize();
+
     return true;
 }
 
@@ -74,6 +78,16 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     QMainWindow::resizeEvent(event);
 
     DLOG << "resize";
+}
+
+void MainWindow::resizeClolumsSize()
+{
+    QStandardItemModel *pModel = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
+    int columnCount = pModel->columnCount();
+
+    for (int i = 0; i < columnCount; ++ i) {
+        ui->treeView->resizeColumnToContents(i);
+    }
 }
 
 void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
@@ -94,7 +108,8 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
                                                                      pTopic,
                                                                      partition,
                                                                      this);
-    pPartitionDetailDlg->open();
+    // pPartitionDetailDlg->open();
+    pPartitionDetailDlg->show();
 }
 
 void MainWindow::on_filterEdit_textChanged(const QString &arg1)
@@ -114,6 +129,8 @@ void MainWindow::on_filterEdit_textChanged(const QString &arg1)
                 insertTopic2View(pItemModel, row ++, topic);
             }
         }
+
+        resizeClolumsSize();
     } else {
         initTreeView();
     }
@@ -123,6 +140,19 @@ void MainWindow::on_pushButton_clicked()
 {
     consumerPtr()->topics(_topics);
     QStandardItemModel *pItemModel = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
+
+    int rowCount = pItemModel->rowCount();
+    int columnCount = pItemModel->columnCount();
+
+    for (int i = 0; i < rowCount; ++ i) {
+        for (int j = 0; j < columnCount; ++ j) {
+            auto *pItem = pItemModel->item(i, j);
+            if (pItem) {
+                delete pItem;
+            }
+        }
+    }
+
     pItemModel->clear();
     initTreeView();
 }

@@ -44,7 +44,7 @@ private:
     int64_t messageCount() const;
     void messageCount(int64_t value);
 
-    int64_t targetOffset() const;
+    int64_t messageIndex() const;
 
     void messageDetail(const std::string &detail);
 
@@ -53,6 +53,9 @@ private:
     KafkaConsumer::Ptr      _pConsumer;
     std::string             _topic;
     int                     _partition;
+
+    int _low;
+    int _high;
 };
 
 #endif // PARTITIONDETAILDLG_H

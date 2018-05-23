@@ -52,3 +52,4 @@ FORMS += \
     partitiondetaildlg.ui
 
 
+RC_ICONS = app.ico

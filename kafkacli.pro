@@ -53,3 +53,5 @@ FORMS += \
 
 
 ICON = app.icns
+
+RESOURCES +=

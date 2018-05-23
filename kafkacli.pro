@@ -34,7 +34,8 @@ SOURCES += \
     kafkaconfig.cpp \
     kafkaconsumer.cpp \
     kafkaeventcb.cpp \
-    kafkabasicconfig.cpp
+    kafkabasicconfig.cpp \
+    parserfuncmgr.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -44,7 +45,8 @@ HEADERS += \
     partitiondetaildlg.h \
     kafkaconfig.h \
     kafkaeventcb.h \
-    kafkabasicconfig.h
+    kafkabasicconfig.h \
+    parserfuncmgr.h
 
 FORMS += \
         mainwindow.ui \

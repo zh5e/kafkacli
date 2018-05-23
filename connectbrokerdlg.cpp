@@ -6,6 +6,7 @@
 #include "mainwindow.h"
 #include "kafkaconsumer.h"
 #include "kafkabasicconfig.h"
+#include "parserfuncmgr.h"
 
 
 ConnectBrokerDlg::ConnectBrokerDlg(QWidget *parent)
@@ -13,7 +14,8 @@ ConnectBrokerDlg::ConnectBrokerDlg(QWidget *parent)
 {
     ui->setupUi(this);
     // ui->_brokerTextEdit->setText(QString("132.228.119.20:29091,132.228.119.20:29092,132.228.119.20:29093"));
-    ui->_brokerTextEdit->setText(QString("132.252.8.122:8299"));
+    ui->brokers->setText(QString("132.252.8.122:8299"));
+    ParserFuncMgr::inst().loadFunc();
 }
 
 ConnectBrokerDlg::~ConnectBrokerDlg()
@@ -29,7 +31,7 @@ void ConnectBrokerDlg::on_pushButton_clicked()
                                QMessageBox::Ok);
     };
 
-    const auto broker = ui->_brokerTextEdit->toPlainText().toUtf8().constData();
+    const auto broker = ui->brokers->text().toUtf8().constData();
 
     KafkaBasicConfig kafkaConfig;
     kafkaConfig << std::make_pair(kafka_config::BROKER_LIST, broker)

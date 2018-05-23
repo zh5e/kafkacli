@@ -46,6 +46,11 @@ bool PartitionDetailDlg::initView()
     return true;
 }
 
+bool PartitionDetailDlg::initParserComboBox()
+{
+    return true;
+}
+
 int64_t PartitionDetailDlg::messageCount() const
 {
     return ui->messageCountEdit->text().toLongLong();

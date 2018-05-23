@@ -4,6 +4,7 @@
 #include <QDialog>
 
 #include <string>
+#include <functional>
 
 #include "kafkaconsumer.h"
 
@@ -28,6 +29,8 @@ private slots:
 
 private:
     bool initView();
+
+    bool initParserComboBox();
 
     KafkaConsumer::Ptr consumerPtr() {
         return _pConsumer;

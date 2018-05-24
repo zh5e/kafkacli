@@ -41,10 +41,9 @@ bool ParserFuncMgr::loadFunc()
         const auto &funcSymbol = in.readLine();
 
         QLibrary lib(funcSymbol);
-        if ()
 
         DLOG << "func desc: " << QString::fromStdString(func.desc)
-             << ", func symbol: " << QString::fromStdString(funcSymbol);
+             << ", func symbol: " << funcSymbol;
     }
 
     return true;

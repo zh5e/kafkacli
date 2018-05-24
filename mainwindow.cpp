@@ -138,6 +138,8 @@ void MainWindow::on_filterEdit_textChanged(const QString &arg1)
 
 void MainWindow::on_pushButton_clicked()
 {
+    _topics.clear();
+
     consumerPtr()->topics(_topics);
     QStandardItemModel *pItemModel = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
 

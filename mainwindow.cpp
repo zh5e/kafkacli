@@ -59,13 +59,23 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::initTreeView() {
+bool MainWindow::initTreeView(const QString &arg) {
     QStandardItemModel *pItemModel = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
     pItemModel->setHorizontalHeaderLabels(QStringList() << "主题" << "分区id"
                                           << "主节点" << "replicas" << "isr");
+
+    QRegExp regExp(arg, Qt::CaseInsensitive);
+
     int row = 0;
     for (const auto &topic : _topics) {
-        insertTopic2View(pItemModel, row ++, topic);
+        if (arg.length() > 0) {
+            DLOG << regExp.indexIn(QString::fromStdString(topic.topic));
+            if (regExp.indexIn(QString::fromStdString(topic.topic)) >= 0) {
+                insertTopic2View(pItemModel, row ++, topic);
+            }
+        } else {
+            insertTopic2View(pItemModel, row ++, topic);
+        }
     }
 
     resizeClolumsSize();
@@ -88,6 +98,26 @@ void MainWindow::resizeClolumsSize()
     for (int i = 0; i < columnCount; ++ i) {
         ui->treeView->resizeColumnToContents(i);
     }
+}
+
+void MainWindow::clearAllTopics()
+{
+    QStandardItemModel *pItemModel = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
+    DLOG << "filter text: " << ui->filterEdit->text();
+
+    int rowCount = pItemModel->rowCount();
+    int columnCount = pItemModel->columnCount();
+
+    for (int i = 0; i < rowCount; ++ i) {
+        for (int j = 0; j < columnCount; ++ j) {
+            auto *pItem = pItemModel->item(i, j);
+            if (pItem) {
+                delete pItem;
+            }
+        }
+    }
+
+    pItemModel->clear();
 }
 
 void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
@@ -114,26 +144,9 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
 
 void MainWindow::on_filterEdit_textChanged(const QString &arg1)
 {
-    QStandardItemModel *pItemModel = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
-    if (arg1.length()) {
-        pItemModel->clear();
+    clearAllTopics();
 
-        pItemModel->setHorizontalHeaderLabels(QStringList() << "主题" << "分区id"
-                                              << "主节点" << "replicas" << "isr");
-
-        int row = 0;
-        QRegExp regExp(arg1, Qt::CaseInsensitive);
-        for (const auto &topic : _topics) {
-            DLOG << regExp.indexIn(QString::fromStdString(topic.topic));
-            if (regExp.indexIn(QString::fromStdString(topic.topic)) >= 0) {
-                insertTopic2View(pItemModel, row ++, topic);
-            }
-        }
-
-        resizeClolumsSize();
-    } else {
-        initTreeView();
-    }
+    initTreeView(arg1);
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -141,20 +154,5 @@ void MainWindow::on_pushButton_clicked()
     _topics.clear();
 
     consumerPtr()->topics(_topics);
-    QStandardItemModel *pItemModel = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
-
-    int rowCount = pItemModel->rowCount();
-    int columnCount = pItemModel->columnCount();
-
-    for (int i = 0; i < rowCount; ++ i) {
-        for (int j = 0; j < columnCount; ++ j) {
-            auto *pItem = pItemModel->item(i, j);
-            if (pItem) {
-                delete pItem;
-            }
-        }
-    }
-
-    pItemModel->clear();
     initTreeView();
 }

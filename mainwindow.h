@@ -22,7 +22,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    bool initTreeView();
+    bool initTreeView(const QString &arg = QString());
 
     KafkaConsumer::Ptr consumerPtr() {
         return _pConsumer;
@@ -37,6 +37,8 @@ private:
     void resizeEvent(QResizeEvent *event);
 
     void resizeClolumsSize();
+
+    void clearAllTopics();
 
 private slots:
     void on_treeView_doubleClicked(const QModelIndex &index);

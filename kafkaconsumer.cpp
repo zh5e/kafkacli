@@ -20,7 +20,7 @@ bool KafkaConsumer::init()
 
 bool KafkaConsumer::topics(TopicVec &topics) {
     RdKafka::Metadata *pMetadata;
-    auto ret = consumerPtr()->metadata(true, nullptr, &pMetadata, 1000);
+    auto ret = consumerPtr()->metadata(true, nullptr, &pMetadata, 1000*10);
     if (ret!= RdKafka::ERR_NO_ERROR) {
         DLOG << "failed to get metadata: " << ret << " : "
              << RdKafka::err2str(ret).c_str();

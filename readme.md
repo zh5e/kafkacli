@@ -3,6 +3,13 @@ kafka查看工具
 - Qt Create 4.6.1
 - Qt 5.10.1
 
+# 安装
+
+安装librdkafka
+```sh
+brew install librdkafka
+```
+
 # 窗口
 
 - 登陆窗口

@@ -34,8 +34,6 @@ public:
     }
 
 private:
-    void resizeEvent(QResizeEvent *event);
-
     void resizeClolumsSize();
 
     void clearAllTopics();

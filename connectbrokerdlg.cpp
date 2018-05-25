@@ -13,6 +13,8 @@ ConnectBrokerDlg::ConnectBrokerDlg(QWidget *parent)
     : QDialog(parent), ui(new Ui::ConnectBrokerDlg)
 {
     ui->setupUi(this);
+    ui->password->setEchoMode(QLineEdit::Password);
+
     // ui->_brokerTextEdit->setText(QString("132.228.119.20:29091,132.228.119.20:29092,132.228.119.20:29093"));
     ui->brokers->setText(QString("132.252.8.122:8299"));
     ParserFuncMgr::inst().loadFunc();

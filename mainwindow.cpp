@@ -83,13 +83,6 @@ bool MainWindow::initTreeView(const QString &arg) {
     return true;
 }
 
-void MainWindow::resizeEvent(QResizeEvent *event)
-{
-    QMainWindow::resizeEvent(event);
-
-    DLOG << "resize";
-}
-
 void MainWindow::resizeClolumsSize()
 {
     QStandardItemModel *pModel = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
@@ -134,10 +127,8 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
 
     const auto *pTopic = pParent->text().toUtf8().data();
     int partition = pItem->text().toInt();
-    PartitionDetailDlg *pPartitionDetailDlg = new PartitionDetailDlg(consumerPtr(),
-                                                                     pTopic,
-                                                                     partition,
-                                                                     this);
+    auto *pPartitionDetailDlg = new PartitionDetailDlg(consumerPtr(),
+                                                       pTopic, partition, this);
     // pPartitionDetailDlg->open();
     pPartitionDetailDlg->show();
 }
@@ -152,7 +143,10 @@ void MainWindow::on_filterEdit_textChanged(const QString &arg1)
 void MainWindow::on_pushButton_clicked()
 {
     _topics.clear();
-
     consumerPtr()->topics(_topics);
-    initTreeView();
+
+    clearAllTopics();
+
+    auto filterString = ui->filterEdit->text();
+    initTreeView(filterString);
 }

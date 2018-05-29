@@ -43,12 +43,29 @@ bool PartitionDetailDlg::initView()
     _low = low;
     _high = high;
 
+    // 初始化解析方法列表
+    for (const auto &func : ParserFuncMgr::inst().funcList()) {
+        ui->parserComboBox->addItem(QString::fromStdString(func.desc));
+    }
+
     return true;
 }
 
 bool PartitionDetailDlg::initParserComboBox()
 {
     return true;
+}
+
+ParserFunc::Func PartitionDetailDlg::getParserFunc()
+{
+    const auto &txt = ui->parserComboBox->currentText().toUtf8().toStdString();
+    for (const auto &func : ParserFuncMgr::inst().funcList()) {
+        if (func.desc == txt) {
+            return func.func;
+        }
+    }
+
+    return nullptr;
 }
 
 int64_t PartitionDetailDlg::messageCount() const
@@ -73,12 +90,11 @@ void PartitionDetailDlg::messageDetail(const std::string &detail)
 
 void PartitionDetailDlg::on_pushButton_clicked()
 {
+    int64_t messageOffset = messageIndex() + _low;
+    DLOG << "low: " << _low << ", high: " << _high << ", offset: " << messageOffset;
+
     std::string message;
     std::string errstr;
-
-    int64_t messageOffset = messageIndex() + _low;
-
-    DLOG << "low: " << _low << ", high: " << _high << ", offset: " << messageOffset;
 
     auto ret = consumerPtr()->messageAtOffset(topic(), partition(),
                                               messageOffset, message, errstr);
@@ -88,5 +104,11 @@ void PartitionDetailDlg::on_pushButton_clicked()
         messageDetail(errstr);
         return;
     }
+
+    auto parserFunc = getParserFunc();
+    if (parserFunc) {
+        message = parserFunc(message);
+    }
+
     messageDetail(message);
 }

@@ -57,3 +57,6 @@ FORMS += \
 ICON = app.icns
 
 RESOURCES +=
+
+DISTFILES += \
+    readme.md

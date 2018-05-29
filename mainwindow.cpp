@@ -28,12 +28,16 @@ void insertTopic2View(QStandardItemModel *pItemModel, int row, const TopicMetada
         for (auto p : it->replicasVector) {
             qs.append(QString::number(p) + ",");
         }
+        qs.remove(qs.length()-1, 1);
+
         itemList.push_back(new QStandardItem(qs));
 
         qs.clear();
         for (auto p : it->isrsVector) {
             qs.append(QString::number(p) + ",");
         }
+        qs.remove(qs.length()-1, 1);
+
         itemList.push_back(new QStandardItem(qs));
 
         pPartent->insertRow(childRow, itemList);

@@ -7,6 +7,7 @@
 #include <functional>
 
 #include "kafkaconsumer.h"
+#include "parserfuncmgr.h"
 
 
 namespace Ui {
@@ -31,6 +32,8 @@ private:
     bool initView();
 
     bool initParserComboBox();
+
+    ParserFunc::Func getParserFunc();
 
     KafkaConsumer::Ptr consumerPtr() {
         return _pConsumer;

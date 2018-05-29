@@ -2,6 +2,7 @@
 
 #include <string>
 #include <fstream>
+#include <cassert>
 
 #include <QDir>
 #include <QFile>
@@ -33,6 +34,13 @@ bool ParserFuncMgr::loadFunc()
     if (!cfgFile.open(QIODevice::ReadOnly | QIODevice::Text))
            return false;
 
+    ParserFunc defaultParser;
+    defaultParser.desc = "默认解析器";
+    defaultParser.func = [] (const std::string &message) -> std::string {
+        return message;
+    };
+
+    _funcList.push_back(defaultParser);
 
     QTextStream in(&cfgFile);
     while (!in.atEnd()) {
@@ -40,10 +48,18 @@ bool ParserFuncMgr::loadFunc()
         func.desc = in.readLine().toStdString();
         const auto &funcSymbol = in.readLine();
 
-        QLibrary lib(funcSymbol);
 
-        DLOG << "func desc: " << QString::fromStdString(func.desc)
-             << ", func symbol: " << funcSymbol;
+        continue;
+
+        // QLibrary lib(funcSymbol);
+        // auto pFunc = ParserFunc::Func(lib.resolve("parserKafkaMessage"));
+        // func.func = ParserFunc::Func(lib.resolve("parserKafkaMessage"));
+        // assert(func.func);
+
+        // DLOG << "func desc: " << QString::fromStdString(func.desc)
+        //      << ", func symbol: " << funcSymbol;
+
+        // _funcList.push_back(func);
     }
 
     return true;

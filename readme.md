@@ -14,7 +14,7 @@ brew install librdkafka
 
 - 登陆窗口
 - 主窗口，显示topic信息
-- 消息窗口，显示消息数量以及内容
+- 分区详情窗口，显示消息数量以及内容
 
 # kafka消息解析器
 
@@ -27,3 +27,9 @@ brew install librdkafka
 
 - 配置文件路径~/.kafkacli/kafkacli.cfg
 - 解析函数说明与解析库路径各占一行
+
+
+# TODO
+
+- 添加对应消息的解析库
+- 分区详情窗口刷新、获取最后一条消息的功能

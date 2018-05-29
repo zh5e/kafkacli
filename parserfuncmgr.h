@@ -9,8 +9,8 @@
 // 解析函数信息
 class ParserFunc {
 public:
-    using Func = std::function<std::string(const std::string&)>;
-    // using Func = std::string(*)(const std::string&);
+    // using Func = std::function<std::string(const std::string&)>;
+    using Func = std::string(*)(const std::string&);
 
     std::string desc;
     Func func;

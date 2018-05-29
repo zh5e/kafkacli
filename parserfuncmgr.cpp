@@ -48,18 +48,29 @@ bool ParserFuncMgr::loadFunc()
         func.desc = in.readLine().toStdString();
         const auto &funcSymbol = in.readLine();
 
+        if (!QLibrary::isLibrary(funcSymbol)) {
+            WLOG << funcSymbol << " not a library";
+            return false;
+        }
 
-        continue;
+        QLibrary lib(funcSymbol);
+        if (!lib.load()) {
+            WLOG << "failed to load dynamic lib" << funcSymbol;
+            return false;
+        }
 
-        // QLibrary lib(funcSymbol);
-        // auto pFunc = ParserFunc::Func(lib.resolve("parserKafkaMessage"));
-        // func.func = ParserFunc::Func(lib.resolve("parserKafkaMessage"));
-        // assert(func.func);
+        if (!lib.isLoaded()) {
+            WLOG << "failed to load dynamic lib" << funcSymbol;
+            return false;
+        }
 
-        // DLOG << "func desc: " << QString::fromStdString(func.desc)
-        //      << ", func symbol: " << funcSymbol;
+        func.func = (ParserFunc::Func)(lib.resolve("parserKafkaMessage"));
+        if (func.func && !func.desc.empty()) {
+            _funcList.push_back(func);
+        }
 
-        // _funcList.push_back(func);
+        DLOG << "func desc: " << QString::fromStdString(func.desc)
+             << ", func symbol: " << funcSymbol;
     }
 
     return true;

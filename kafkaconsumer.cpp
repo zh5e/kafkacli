@@ -66,6 +66,19 @@ bool KafkaConsumer::queryWatermarkOffsets(const std::string &topic, int partitio
 }
 
 bool KafkaConsumer::messageAtOffset(const std::string &topic, int partition, int64_t offset, std::string &message, std::string &errstr) {
+
+    std::vector<RdKafka::TopicPartition*> partitions;
+    if (RdKafka::ERR_NO_ERROR != consumerPtr()->assignment(partitions)) {
+        WLOG << "failed to exec assignment";
+        return false;
+    }
+
+    for (auto *p : partitions) {
+        if (p) {
+            delete p;
+        }
+    }
+
     auto ret = consumerPtr()->unassign();
     if (ret != RdKafka::ERR_NO_ERROR) {
         DLOG << "failed unassign " << ret << ", errstr: "
@@ -81,7 +94,7 @@ bool KafkaConsumer::messageAtOffset(const std::string &topic, int partition, int
         return false;
     }
 
-    std::shared_ptr<RdKafka::Message> pMessage(consumerPtr()->consume(1000*10));
+    std::shared_ptr<RdKafka::Message> pMessage(consumerPtr()->consume(1000*30));
     if (pMessage->err() != RdKafka::ERR_NO_ERROR) {
         DLOG << "failed to assign " << pMessage->err() << ", errstr: "
              << pMessage->errstr().c_str();

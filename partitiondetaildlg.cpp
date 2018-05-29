@@ -44,8 +44,8 @@ bool PartitionDetailDlg::initView()
     _high = high;
 
     // 初始化解析方法列表
-    for (const auto &func : ParserFuncMgr::inst().funcList()) {
-        ui->parserComboBox->addItem(QString::fromStdString(func.desc));
+    for (const auto &funcName : ParserFuncMgr::inst().funcList()) {
+        ui->parserComboBox->addItem(QString::fromStdString(funcName.desc));
     }
 
     return true;

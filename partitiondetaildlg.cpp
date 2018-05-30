@@ -2,6 +2,7 @@
 #include "ui_partitiondetaildlg.h"
 
 
+
 PartitionDetailDlg::PartitionDetailDlg(KafkaConsumer::Ptr pConsumer,
                                        const std::string &topic,
                                        int partition, QWidget *parent)
@@ -29,6 +30,18 @@ PartitionDetailDlg::~PartitionDetailDlg()
 
 bool PartitionDetailDlg::initView()
 {
+    updateView();
+
+    // 初始化解析方法列表
+    for (const auto &funcName : ParserFuncMgr::inst().funcList()) {
+        ui->parserComboBox->addItem(QString::fromStdString(funcName.desc));
+    }
+
+    return true;
+}
+
+bool PartitionDetailDlg::updateView()
+{
     int64_t low = 0, high = 0;
     auto ret = consumerPtr()->queryWatermarkOffsets(topic(), partition(),
                                                     low, high);
@@ -43,12 +56,32 @@ bool PartitionDetailDlg::initView()
     _low = low;
     _high = high;
 
-    // 初始化解析方法列表
-    for (const auto &funcName : ParserFuncMgr::inst().funcList()) {
-        ui->parserComboBox->addItem(QString::fromStdString(funcName.desc));
+    return true;
+}
+
+void PartitionDetailDlg::showMessage(int64_t messageOffset)
+{
+    std::string message;
+    std::string errstr;
+
+    auto ret = consumerPtr()->messageAtOffset(topic(), partition(),
+                                              messageOffset, message, errstr);
+    if (!ret) {
+        QMessageBox::critical(this, "获取消息失败", QString::fromStdString(errstr),
+                              QMessageBox::Ok);
+        messageDetail(errstr);
+        return;
     }
 
-    return true;
+    auto parserLib = getParserLib();
+    if (parserLib) {
+        auto parserFunc = (ParserFunc::Func)parserLib->resolve(ParserFunc::PARSE_SYMBOL);
+        if (parserFunc) {
+            message = parserFunc(message);
+        }
+    }
+
+    messageDetail(message);
 }
 
 bool PartitionDetailDlg::initParserComboBox()
@@ -56,12 +89,17 @@ bool PartitionDetailDlg::initParserComboBox()
     return true;
 }
 
-ParserFunc::Func PartitionDetailDlg::getParserFunc()
+PartitionDetailDlg::LibraryPtr PartitionDetailDlg::getParserLib()
 {
     const auto &txt = ui->parserComboBox->currentText().toUtf8().toStdString();
     for (const auto &func : ParserFuncMgr::inst().funcList()) {
         if (func.desc == txt) {
-            return func.func;
+            LibraryPtr ptr(new QLibrary(QString::fromStdString(func.libPath)),
+                           [](QLibrary *p){
+                p->unload();
+                delete p;
+            });
+            return ptr;
         }
     }
 
@@ -83,6 +121,11 @@ int64_t PartitionDetailDlg::messageIndex() const
     return ui->targetOffsetEdit->text().toLongLong();
 }
 
+void PartitionDetailDlg::messageIndex(long index)
+{
+    ui->targetOffsetEdit->setText(QString::number(index));
+}
+
 void PartitionDetailDlg::messageDetail(const std::string &detail)
 {
     ui->messageDetail->setText(QString::fromStdString(detail));
@@ -91,24 +134,27 @@ void PartitionDetailDlg::messageDetail(const std::string &detail)
 void PartitionDetailDlg::on_pushButton_clicked()
 {
     int64_t messageOffset = messageIndex() + _low;
-    DLOG << "low: " << _low << ", high: " << _high << ", offset: " << messageOffset;
+    DLOG << "low: " << _low << ", high: " << _high
+         << ", offset: " << messageOffset;
 
-    std::string message;
-    std::string errstr;
+    showMessage(messageOffset);
+}
 
-    auto ret = consumerPtr()->messageAtOffset(topic(), partition(),
-                                              messageOffset, message, errstr);
-    if (!ret) {
-        QMessageBox::critical(this, "获取消息失败", QString::fromStdString(errstr),
-                              QMessageBox::Ok);
-        messageDetail(errstr);
-        return;
-    }
+void PartitionDetailDlg::on_updateBtn_clicked()
+{
+    updateView();
+}
 
-    auto parserFunc = getParserFunc();
-    if (parserFunc) {
-        message = parserFunc(message);
-    }
+void PartitionDetailDlg::on_lastMessageBtn_clicked()
+{
+    updateView();
 
-    messageDetail(message);
+    int64_t messageOffset = _high - _low - 1;
+    messageIndex(messageOffset);
+
+    DLOG << "low: " << _low << ", high: " << _high
+         << ", offset: " << messageOffset;
+
+
+    showMessage(_high - 1);
 }

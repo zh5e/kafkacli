@@ -41,6 +41,25 @@
        <number>12</number>
       </property>
       <item>
+       <widget class="QPushButton" name="updateBtn">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>刷新</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>消息数：</string>
@@ -90,6 +109,13 @@
        <widget class="QPushButton" name="pushButton">
         <property name="text">
          <string>查看</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="lastMessageBtn">
+        <property name="text">
+         <string>最后一条</string>
         </property>
        </widget>
       </item>

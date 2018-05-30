@@ -1,6 +1,4 @@
-kafka查看工具
-
-![](https://raw.githubusercontent.com/zh5e/kafkacli/master/app.iconset/icon_512x512.png)
+![](https://raw.githubusercontent.com/zh5e/kafkacli/master/app.iconset/icon_128x128.png)
 
 - Qt Create 4.6.1
 - Qt 5.10.1
@@ -24,15 +22,21 @@ brew install librdkafka
 - 解析动态库~/.kafkacli/*.dlib下
 - 消息窗口会列出解析库
 
+库中定义的解析函数
+
+```c++
+extern "C" {
+std::string parserKafkaMessage(const std::string &message);
+}
+```
+
 
 ## 解析函数配置
 
 - 配置文件路径~/.kafkacli/kafkacli.cfg
 - 解析函数说明与解析库路径各占一行
 
-
-# TODO
-
-- 添加对应消息的解析库
-- 分区详情窗口刷新、获取最后一条消息的功能
-- 切换解析方法的时候切换解析库
+'''
+解析函数1
+/path/to/lib1.dylib
+'''

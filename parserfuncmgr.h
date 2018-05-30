@@ -3,17 +3,16 @@
 
 #include <list>
 #include <string>
-#include <functional>
 
 
 // 解析函数信息
 class ParserFunc {
 public:
-    // using Func = std::function<std::string(const std::string&)>;
+    static const char * PARSE_SYMBOL;
     using Func = std::string(*)(const std::string&);
 
     std::string desc;
-    Func func;
+    std::string libPath;
 };
 
 

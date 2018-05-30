@@ -36,7 +36,8 @@ std::string parserKafkaMessage(const std::string &message);
 - 配置文件路径~/.kafkacli/kafkacli.cfg
 - 解析函数说明与解析库路径各占一行
 
-'''
+
+```
 解析函数1
 /path/to/lib1.dylib
-'''
+```

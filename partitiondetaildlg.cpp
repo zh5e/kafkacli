@@ -20,6 +20,8 @@ PartitionDetailDlg::PartitionDetailDlg(KafkaConsumer::Ptr pConsumer,
 
     this->setWindowTitle(QString("%1-%2").arg( topic.c_str()).arg(partition));
 
+    setWindowFlags(Qt::WindowType::MaximizeUsingFullscreenGeometryHint | Qt::WindowType::Window);
+
     initView();
 }
 

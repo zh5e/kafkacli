@@ -1,5 +1,7 @@
 #include "kafkaconsumer.h"
 
+#include "logger.h"
+
 
 KafkaConsumer::KafkaConsumer(KafkaConfig &config)
     : _kafkaConfig(config) {
@@ -9,7 +11,7 @@ bool KafkaConsumer::init()
 {
     std::string errstr;
     _pConsumer = RdKafka::KafkaConsumer::create(kafkaConfig().config(),
-                                                     errstr);
+                                                errstr);
     if (!_pConsumer) {
         DLOG << "failed to create kafka consumer";
         return false;
@@ -110,4 +112,88 @@ bool KafkaConsumer::messageAtOffset(const std::string &topic, int partition, int
 KafkaConfig &KafkaConsumer::kafkaConfig()
 {
     return _kafkaConfig;
+}
+
+bool KafkaConsumer::assign( const std::initializer_list<RdKafka::TopicPartition*> &partitions ) {
+    auto ret = consumerPtr()->assign( partitions );
+    if ( ret != RdKafka::ERR_NO_ERROR ) {
+        FLOG << "failed assign partions, ret " << ret;
+        return false;
+    }
+
+    return true;
+}
+
+bool KafkaConsumer::assign( const std::vector<RdKafka::TopicPartition*> &partitions ) {
+    auto ret = consumerPtr()->assign( partitions );
+    if ( ret != RdKafka::ERR_NO_ERROR ) {
+        FLOG << "failed assign partions, ret " << ret;
+        return false;
+    }
+
+    return true;
+}
+
+bool KafkaConsumer::unassign() {
+    std::vector<RdKafka::TopicPartition*> partitions;
+    if (RdKafka::ERR_NO_ERROR != consumerPtr()->assignment(partitions)) {
+        WLOG << "failed to exec assignment";
+        return false;
+    }
+
+    for (auto *p : partitions) {
+        if (p) {
+            delete p;
+        }
+    }
+
+    auto ret = consumerPtr()->unassign();
+    if ( ret != RdKafka::ERR_NO_ERROR ) {
+        FLOG << "failed to unassign, ret: " << ret;
+        return false;
+    }
+
+    return true;
+}
+
+bool KafkaConsumer::consume( std::string &data, std::string &topic,
+                             int32_t &partition, int64_t &offset, int timeoutMs) {
+    std::shared_ptr<RdKafka::Message> pMessage(
+                consumerPtr()->consume( timeoutMs ),
+                []( RdKafka::Message * p ) {
+        delete p;
+        DLOG << "delete kafka message";
+    } );
+
+    if ( pMessage->err() != RdKafka::ERR_NO_ERROR ) {
+        // 消费超时
+        if ( pMessage->err() == RdKafka::ERR__TIMED_OUT ) {
+            ILOG << "consumed  err: " << pMessage->err()
+                 << ", errstr: " << QString::fromStdString(pMessage->errstr());
+            return true;
+        }
+        // 读到队尾
+        else if ( pMessage->err() == RdKafka::ERR__PARTITION_EOF ) {
+            ILOG << "consumed  err: " << pMessage->err()
+                 << ", errstr: " << QString::fromStdString(pMessage->errstr())
+                 << ", offset: " << pMessage->offset();
+            topic = pMessage->topic_name();
+            partition = pMessage->partition();
+            offset = pMessage->offset();
+            return true;
+        }
+
+        FLOG << "failed to consume, " << pMessage->err()
+             << ", errstr: " << QString::fromStdString(pMessage->errstr());
+
+        return false;
+    }
+
+    data.assign( static_cast<char*>( pMessage->payload() ),
+                 pMessage->len() );
+    topic = pMessage->topic_name();
+    partition = pMessage->partition();
+    offset = pMessage->offset();
+
+    return true;
 }

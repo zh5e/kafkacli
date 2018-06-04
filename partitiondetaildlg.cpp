@@ -1,6 +1,7 @@
 #include "partitiondetaildlg.h"
 #include "ui_partitiondetaildlg.h"
 
+#include "logger.h"
 
 
 PartitionDetailDlg::PartitionDetailDlg(KafkaConsumer::Ptr pConsumer,
@@ -159,4 +160,9 @@ void PartitionDetailDlg::on_lastMessageBtn_clicked()
 
 
     showMessage(_high - 1);
+}
+
+void PartitionDetailDlg::on_filterBtn_clicked()
+{
+
 }

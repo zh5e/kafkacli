@@ -5,6 +5,7 @@
 
 #include "partitiondetaildlg.h"
 #include "kafkaconsumer.h"
+#include "logger.h"
 
 namespace  {
 void insertTopic2View(QStandardItemModel *pItemModel, int row, const TopicMetadata &topic)

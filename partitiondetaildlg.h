@@ -37,6 +37,8 @@ private slots:
 
     void on_lastMessageBtn_clicked();
 
+    void on_filterBtn_clicked();
+
 private:
     bool initView();
     bool updateView();

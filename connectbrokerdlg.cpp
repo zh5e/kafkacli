@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "logger.h"
 #include "ui_connectbrokerdlg.h"
 #include "mainwindow.h"
 #include "kafkaconsumer.h"

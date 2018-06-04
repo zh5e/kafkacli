@@ -35,7 +35,8 @@ SOURCES += \
     kafkaconsumer.cpp \
     kafkaeventcb.cpp \
     kafkabasicconfig.cpp \
-    parserfuncmgr.cpp
+    parserfuncmgr.cpp \
+    messagefilterdlg.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -46,12 +47,14 @@ HEADERS += \
     kafkaconfig.h \
     kafkaeventcb.h \
     kafkabasicconfig.h \
-    parserfuncmgr.h
+    parserfuncmgr.h \
+    messagefilterdlg.h
 
 FORMS += \
         mainwindow.ui \
     connectbrokerdlg.ui \
-    partitiondetaildlg.ui
+    partitiondetaildlg.ui \
+    messagefilterdlg.ui
 
 
 ICON = app.icns

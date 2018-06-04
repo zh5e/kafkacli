@@ -12,7 +12,6 @@
 #include <librdkafka/rdkafkacpp.h>
 #include <QMessageBox>
 
-#include "logger.h"
 #include "kafkaconfig.h"
 
 
@@ -47,6 +46,11 @@ public:
     // 查看当前位置kafka信息
     bool messageAtOffset(const std::string &topic, int partition, int64_t offset,
                          std::string &message, std::string &errstr);
+    bool assign(const std::initializer_list<RdKafka::TopicPartition *> &partitions);
+    bool assign(const std::vector<RdKafka::TopicPartition *> &partitions);
+    bool unassign();
+    bool consume(std::string &data, std::string &topic, int32_t &partition, int64_t &offset, int timeoutMs = 3000);
+
 protected:
      RdKafka::KafkaConsumer *consumerPtr() {
         return _pConsumer;

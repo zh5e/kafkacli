@@ -19,7 +19,8 @@ brew install librdkafka
 # kafka消息解析器
 
 - 通过加载指定的动态库解析原始消息，输出json数据
-- 解析动态库~/.kafkacli/*.dlib下
+- 应用HOME路径${HOME}/.kafkacli/
+- 解析动态库${HOME}/.kafkacli/*.dlib下
 - 消息窗口会列出解析库
 
 ## 消息解析函数
@@ -43,8 +44,6 @@ bool checkFileName(const std::string &message, const std::string &fileName);
 ```
 
 ## 配置文件
-
-配置文件路径~/.kafkacli/kafkacli.cfg
 
 
 ### 解析函数

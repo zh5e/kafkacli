@@ -18,7 +18,7 @@ public:
     }
 
     Func resolve() {
-        return Func(_lib.resolve(PARSE_SYMBOL));
+        return Func(_lib.resolve(funcName.c_str()));
     }
 
 private:

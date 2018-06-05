@@ -10,8 +10,6 @@
 
 #include "logger.h"
 
-const char * ParserFunc::PARSE_SYMBOL = "parserKafkaMessage";
-
 const char * LibFuncMgr::PARSER_FUNC_CONFIG = ".kafkacli/parser_func.cfg";
 const char * LibFuncMgr::FILTER_FUNC_CONFIG = ".kafkacli/filter_func.cfg";
 
@@ -58,6 +56,7 @@ bool LibFuncMgr::loadParserFuncConfig()
         ParserFunc func;
         func.desc = in.readLine().toStdString();
         func.libPath = in.readLine().toStdString();
+        func.funcName = in.readLine().toStdString();
 
         DLOG << "func desc: " << QString::fromStdString(func.desc)
              << ", lib path: " << QString::fromStdString(func.libPath);

@@ -29,7 +29,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -221,16 +221,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="filterBtn">
-           <property name="text">
-            <string>过滤</string>
-           </property>
-           <property name="default">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QLabel" name="label_6">
            <property name="text">
             <string>消息索引</string>
@@ -241,9 +231,26 @@
           <widget class="QLineEdit" name="filterMessageIndex"/>
          </item>
          <item>
+          <widget class="QPushButton" name="filterBtn">
+           <property name="text">
+            <string>Start</string>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="nextBtn">
+           <property name="text">
+            <string>Next</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="resetFilterBtn">
            <property name="text">
-            <string>重置</string>
+            <string>Stop</string>
            </property>
           </widget>
          </item>

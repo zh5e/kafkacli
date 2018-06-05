@@ -46,6 +46,8 @@ private slots:
     void updateOffsetSlot(const QString &offset);
     void filterResultSlot(const QString &data);
 
+    void on_nextBtn_clicked();
+
 private:
     bool initView();
     bool updateView();
@@ -77,6 +79,9 @@ private:
     void messageIndex(long index);
 
     void messageDetail(const std::string &detail);
+
+    void startFilterThread(int64_t offset);
+    void stopFilterThread();
 
 private:
     Ui::PartitionDetailDlg  *ui;

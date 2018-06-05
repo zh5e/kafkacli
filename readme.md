@@ -22,22 +22,52 @@ brew install librdkafka
 - 解析动态库~/.kafkacli/*.dlib下
 - 消息窗口会列出解析库
 
-库中定义的解析函数
+## 消息解析函数
 
 ```c++
+using Func = std::string(*)(const std::string&);
+
 extern "C" {
 std::string parserKafkaMessage(const std::string &message);
 }
 ```
 
+## 过滤消息函数
 
-## 解析函数配置
+```c++
+using Func = bool (*)(const std::string &, const std::string &);
 
-- 配置文件路径~/.kafkacli/kafkacli.cfg
-- 解析函数说明与解析库路径各占一行
-
-
+extern "C" {
+bool checkFileName(const std::string &message, const std::string &fileName);
+}
 ```
-解析函数1
-/path/to/lib1.dylib
+
+## 配置文件
+
+配置文件路径~/.kafkacli/kafkacli.cfg
+
+
+### 解析函数
+
+```sh
+${HOME}/.kafkacli/parser_func.cfg
+
+# 配置
+消息解析1
+/Users/zh/.kafkacli/libxxxx.dylib
+消息解析2
+/Users/zh/.kafkacli/libzzzz.dylib
+```
+
+### 过滤函数
+
+```sh
+${HOME}/.kafkacli/filter_func.cfg
+
+过滤方法1（参数文件名）
+/Users/zh/.kafkacli/libxxxx1.dylib
+checkFileName
+过滤方法2（参数用户名）
+/Users/zh/.kafkacli/libxxxx2.dylib
+checkUserName
 ```

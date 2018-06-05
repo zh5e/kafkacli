@@ -136,6 +136,42 @@ void PartitionDetailDlg::messageDetail(const std::string &detail)
     ui->messageDetail->setText(QString::fromStdString(detail));
 }
 
+void PartitionDetailDlg::startFilterThread(int64_t offset)
+{
+    // 先停止任务
+    if (_filterThread) {
+        _filterThread->stop();
+        _filterThread->wait();
+    }
+
+    _filterThread.reset(new FilterThread);
+
+    connect(_filterThread.get(), SIGNAL(reportOffsetSignal(const QString&)),
+            this, SLOT(updateOffsetSlot(const QString&)));
+    connect(_filterThread.get(), SIGNAL(filterResultSignal(const QString&)),
+            this, SLOT(filterResultSlot(const QString&)));
+
+    _filterThread->topic(topic());
+    _filterThread->partition(partition());
+    _filterThread->offset(offset);
+    _filterThread->consumerPtr(consumerPtr());
+    auto &filterFunc = getFilterFunc();
+    _filterThread->filterFunc(filterFunc);
+    const auto &filterValue = ui->filterParam->text();
+    _filterThread->filterValue(filterValue.toStdString());
+    auto &parserFunc = getParserFunc();
+    _filterThread->parserFunc(parserFunc);
+
+    _filterThread->start();
+}
+
+void PartitionDetailDlg::stopFilterThread()
+{
+    _filterThread->stop();
+    _filterThread->wait();
+    _filterThread.reset();
+}
+
 void PartitionDetailDlg::updateOffsetSlot(const QString &offset)
 {
     this->ui->filterMessageIndex->setText(offset);
@@ -145,6 +181,7 @@ void PartitionDetailDlg::filterResultSlot(const QString &data)
 {
     ui->messageDetail->setText(data);
     ui->filterBtn->setEnabled(true);
+    ui->nextBtn->setEnabled(true);
 }
 
 void PartitionDetailDlg::on_pushButton_clicked()
@@ -177,41 +214,26 @@ void PartitionDetailDlg::on_lastMessageBtn_clicked()
 
 void PartitionDetailDlg::on_filterBtn_clicked()
 {
-    if (_filterThread) {
-        _filterThread->stop();
-        _filterThread->wait();
-    }
-
-    _filterThread.reset(new FilterThread);
-
-    connect(_filterThread.get(), SIGNAL(reportOffsetSignal(const QString&)),
-            this, SLOT(updateOffsetSlot(const QString&)));
-    connect(_filterThread.get(), SIGNAL(filterResultSignal(const QString&)),
-            this, SLOT(filterResultSlot(const QString&)));
-
     long messageIndex = ui->filterMessageIndex->text().toLong();
-
-    _filterThread->topic(topic());
-    _filterThread->partition(partition());
-    _filterThread->offset(_low + messageIndex);
-    _filterThread->consumerPtr(consumerPtr());
-    auto &filterFunc = getFilterFunc();
-    _filterThread->filterFunc(filterFunc);
-    const auto &filterValue = ui->filterParam->text();
-    _filterThread->filterValue(filterValue.toStdString());
-    auto &parserFunc = getParserFunc();
-    _filterThread->parserFunc(parserFunc);
-
-    _filterThread->start();
+    startFilterThread(_low + messageIndex);
 
     ui->filterBtn->setEnabled(false);
+    ui->nextBtn->setEnabled(false);
 }
 
 void PartitionDetailDlg::on_resetFilterBtn_clicked()
 {
-    _filterThread->stop();
-    _filterThread->wait();
-    _filterThread.reset();
+    stopFilterThread();
 
     ui->filterBtn->setEnabled(true);
+    ui->nextBtn->setEnabled(true);
+}
+
+void PartitionDetailDlg::on_nextBtn_clicked()
+{
+    long messageIndex = ui->filterMessageIndex->text().toLong();
+    startFilterThread(_low + messageIndex + 1);
+
+    ui->filterBtn->setEnabled(false);
+    ui->nextBtn->setEnabled(false);
 }

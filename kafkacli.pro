@@ -37,7 +37,8 @@ SOURCES += \
     kafkabasicconfig.cpp \
     messagefilterdlg.cpp \
     libfuncmgr.cpp \
-    filterthread.cpp
+    filterthread.cpp \
+    filterfuncloader.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -50,7 +51,11 @@ HEADERS += \
     kafkabasicconfig.h \
     messagefilterdlg.h \
     libfuncmgr.h \
-    filterthread.h
+    filterthread.h \
+    filterfuncloader.h \
+    filterfunc.h \
+    parserfunc.h \
+    parserfuncloader.h
 
 FORMS += \
         mainwindow.ui \

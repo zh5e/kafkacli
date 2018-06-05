@@ -2,6 +2,8 @@
 #include "ui_partitiondetaildlg.h"
 
 #include "logger.h"
+#include "libfuncmgr.h"
+#include "parserfuncloader.h"
 
 
 PartitionDetailDlg::PartitionDetailDlg(KafkaConsumer::Ptr pConsumer,
@@ -82,12 +84,11 @@ void PartitionDetailDlg::showMessage(int64_t messageOffset)
         return;
     }
 
-    auto parserLib = getParserLib();
-    if (parserLib) {
-        auto parserFunc = (ParserFunc::Func)parserLib->resolve(ParserFunc::PARSE_SYMBOL);
-        if (parserFunc) {
-            message = parserFunc(message);
-        }
+    ParserFuncLoader funcLoader(getParserFunc());
+    auto parserFunc = funcLoader.resolve();
+
+    if (parserFunc) {
+        message = parserFunc(message);
     }
 
     messageDetail(message);
@@ -98,21 +99,16 @@ bool PartitionDetailDlg::initParserComboBox()
     return true;
 }
 
-PartitionDetailDlg::LibraryPtr PartitionDetailDlg::getParserLib()
+const ParserFunc &PartitionDetailDlg::getParserFunc() const
 {
-    const auto &txt = ui->parserComboBox->currentText().toUtf8().toStdString();
-    for (const auto &func : LibFuncMgr::inst().parserFuncList()) {
-        if (func.desc == txt) {
-            LibraryPtr ptr(new QLibrary(QString::fromStdString(func.libPath)),
-                           [](QLibrary *p){
-                p->unload();
-                delete p;
-            });
-            return ptr;
-        }
-    }
+    const auto funcIndx = ui->parserComboBox->currentIndex();
+    return LibFuncMgr::inst().parserFuncList()[funcIndx];
+}
 
-    return nullptr;
+const FilterFunc &PartitionDetailDlg::getFilterFunc() const
+{
+    const auto &funcIdx = ui->filterFuncComBox->currentIndex();
+    return LibFuncMgr::inst().filterFuncList()[funcIdx];
 }
 
 int64_t PartitionDetailDlg::messageCount() const
@@ -148,6 +144,7 @@ void PartitionDetailDlg::updateOffsetSlot(const QString &offset)
 void PartitionDetailDlg::filterResultSlot(const QString &data)
 {
     ui->messageDetail->setText(data);
+    ui->filterBtn->setEnabled(true);
 }
 
 void PartitionDetailDlg::on_pushButton_clicked()
@@ -198,6 +195,12 @@ void PartitionDetailDlg::on_filterBtn_clicked()
     _filterThread->partition(partition());
     _filterThread->offset(_low + messageIndex);
     _filterThread->consumerPtr(consumerPtr());
+    auto &filterFunc = getFilterFunc();
+    _filterThread->filterFunc(filterFunc);
+    const auto &filterValue = ui->filterParam->text();
+    _filterThread->filterValue(filterValue.toStdString());
+    auto &parserFunc = getParserFunc();
+    _filterThread->parserFunc(parserFunc);
 
     _filterThread->start();
 

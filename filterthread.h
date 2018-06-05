@@ -9,7 +9,8 @@
 #include <QThread>
 
 #include "kafkaconsumer.h"
-#include "libfuncmgr.h"
+#include "filterfunc.h"
+#include "parserfunc.h"
 
 
 class FilterThread : public QThread
@@ -37,6 +38,12 @@ public:
     void filterValue(const std::string &value);
     const std::string &filterValue() const;
 
+    void filterFunc(const FilterFunc &func);
+    const FilterFunc &filterFunc() const;
+
+    void parserFunc(const ParserFunc &func);
+    const ParserFunc &parserFunc() const;
+
     void stop();
 
 private:
@@ -45,14 +52,15 @@ private:
 signals:
     void filterResultSignal(const QString &);
 
-    void reportOffsetSignal(const QString&);
+    void reportOffsetSignal(const QString &);
 
 private:
     KafkaConsumer::Ptr _consumerPtr;
     std::string _topic;
     int32_t _partition;
     int64_t _offset;
-    FilterFunc::Func _filterFunc;
+    FilterFunc _filterFunc;
+    ParserFunc _parserFunc;
     std::string _filterValue;
     std::atomic_bool _stop;
 };

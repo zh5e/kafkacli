@@ -11,7 +11,6 @@
 #include <mutex>
 
 #include "kafkaconsumer.h"
-#include "libfuncmgr.h"
 #include "filterthread.h"
 
 
@@ -56,7 +55,8 @@ private:
     bool initParserComboBox();
 
 
-    LibraryPtr getParserLib();
+    const ParserFunc &getParserFunc() const;
+    const FilterFunc &getFilterFunc() const;
 
     KafkaConsumer::Ptr consumerPtr() {
         return _pConsumer;

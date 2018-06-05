@@ -1,10 +1,12 @@
 #include "filterthread.h"
 
 #include "logger.h"
+#include "filterfuncloader.h"
+#include "parserfuncloader.h"
 
 
 FilterThread::FilterThread()
-    : _partition(0), _offset(0), _filterFunc(nullptr), _stop(false)
+    : _partition(0), _offset(0), _stop(false)
 {
 }
 
@@ -17,7 +19,6 @@ FilterThread::~FilterThread()
     _topic.clear();
     _partition = 0;
     _offset = 0;
-    _filterFunc = nullptr;
     _filterValue.clear();
 }
 
@@ -72,6 +73,26 @@ const std::string &FilterThread::filterValue() const
     return _filterValue;
 }
 
+void FilterThread::filterFunc(const FilterFunc &func)
+{
+    _filterFunc = func;
+}
+
+const FilterFunc &FilterThread::filterFunc() const
+{
+    return _filterFunc;
+}
+
+void FilterThread::parserFunc(const ParserFunc &func)
+{
+    _parserFunc = func;
+}
+
+const ParserFunc &FilterThread::parserFunc() const
+{
+    return _parserFunc;
+}
+
 void FilterThread::stop()
 {
     _stop.store(true);
@@ -96,7 +117,11 @@ void FilterThread::run()
     bool bFound = false;
     std::string data;
 
+    FilterFuncLoader funcLoader(_filterFunc);
+    auto filterFunc = funcLoader.resove();
+
     while (isRunning() && !_stop) {
+        data.clear();
         if (!consumerPtr()->consume(data, topic, partition, offset)) {
             ELOG << "failed consume kafka topic: " << QString::fromStdString(topic)
                  << ", partition: " << partition
@@ -105,13 +130,28 @@ void FilterThread::run()
             break;
         }
 
+        // 超时等
+        if (data.empty()) {
+            continue;
+        }
+
         emit reportOffsetSignal(QString::number(offset));
 
-        if (_filterFunc && _filterFunc(data, filterValue())) {
+        if (filterFunc && filterFunc(data, filterValue())) {
             bFound = true;
             break;
         }
     }
 
-    emit filterResultSignal(QString::fromStdString(data));
+    // 主动停止不输出结果
+    if (!_stop) {
+        ParserFuncLoader funcLoader(_parserFunc);
+        auto parserFunc = funcLoader.resolve();
+        if (parserFunc) {
+            auto message = parserFunc(data);
+            emit filterResultSignal(QString::fromStdString(message));
+        } else {
+            emit filterResultSignal(QString::fromStdString(data));
+        }
+    }
 }

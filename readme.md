@@ -49,9 +49,8 @@ bool checkFileName(const std::string &message, const std::string &fileName);
 ### 解析函数
 
 ```sh
-${HOME}/.kafkacli/parser_func.cfg
+cat ${HOME}/.kafkacli/parser_func.cfg
 
-# 配置
 消息解析1
 /Users/zh/.kafkacli/libxxxx.dylib
 parserKafkaMessage
@@ -63,7 +62,7 @@ parserKafkaMessage
 ### 过滤函数
 
 ```sh
-${HOME}/.kafkacli/filter_func.cfg
+cat ${HOME}/.kafkacli/filter_func.cfg
 
 过滤方法1（参数文件名）
 /Users/zh/.kafkacli/libxxxx1.dylib

@@ -54,8 +54,10 @@ ${HOME}/.kafkacli/parser_func.cfg
 # 配置
 消息解析1
 /Users/zh/.kafkacli/libxxxx.dylib
+parserKafkaMessage
 消息解析2
 /Users/zh/.kafkacli/libzzzz.dylib
+parserKafkaMessage
 ```
 
 ### 过滤函数

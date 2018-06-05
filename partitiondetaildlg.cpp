@@ -19,11 +19,12 @@ PartitionDetailDlg::PartitionDetailDlg(KafkaConsumer::Ptr pConsumer,
     ui->messageCountEdit->setReadOnly(true);
     ui->messageCountEdit->setDisabled(true);
 
-    this->setWindowTitle(QString("%1-%2").arg( topic.c_str()).arg(partition));
-
-    setWindowFlags(Qt::WindowType::MaximizeUsingFullscreenGeometryHint | Qt::WindowType::Window);
+    setWindowTitle(QString("%1-%2").arg( topic.c_str()).arg(partition));
+    setWindowFlags(Qt::WindowType::MaximizeUsingFullscreenGeometryHint
+                   | Qt::WindowType::Window);
 
     initView();
+
 }
 
 PartitionDetailDlg::~PartitionDetailDlg()
@@ -36,8 +37,13 @@ bool PartitionDetailDlg::initView()
     updateView();
 
     // 初始化解析方法列表
-    for (const auto &funcName : ParserFuncMgr::inst().funcList()) {
+    for (const auto &funcName : LibFuncMgr::inst().parserFuncList()) {
         ui->parserComboBox->addItem(QString::fromStdString(funcName.desc));
+    }
+
+    // 初始化过滤方法列表
+    for (const auto &funcInfo : LibFuncMgr::inst().filterFuncList()) {
+        ui->filterFuncComBox->addItem(QString::fromStdString(funcInfo.desc));
     }
 
     return true;
@@ -95,7 +101,7 @@ bool PartitionDetailDlg::initParserComboBox()
 PartitionDetailDlg::LibraryPtr PartitionDetailDlg::getParserLib()
 {
     const auto &txt = ui->parserComboBox->currentText().toUtf8().toStdString();
-    for (const auto &func : ParserFuncMgr::inst().funcList()) {
+    for (const auto &func : LibFuncMgr::inst().parserFuncList()) {
         if (func.desc == txt) {
             LibraryPtr ptr(new QLibrary(QString::fromStdString(func.libPath)),
                            [](QLibrary *p){
@@ -134,6 +140,16 @@ void PartitionDetailDlg::messageDetail(const std::string &detail)
     ui->messageDetail->setText(QString::fromStdString(detail));
 }
 
+void PartitionDetailDlg::updateOffsetSlot(const QString &offset)
+{
+    this->ui->filterMessageIndex->setText(offset);
+}
+
+void PartitionDetailDlg::filterResultSlot(const QString &data)
+{
+    ui->messageDetail->setText(data);
+}
+
 void PartitionDetailDlg::on_pushButton_clicked()
 {
     int64_t messageOffset = messageIndex() + _low;
@@ -164,5 +180,35 @@ void PartitionDetailDlg::on_lastMessageBtn_clicked()
 
 void PartitionDetailDlg::on_filterBtn_clicked()
 {
+    if (_filterThread) {
+        _filterThread->stop();
+        _filterThread->wait();
+    }
 
+    _filterThread.reset(new FilterThread);
+
+    connect(_filterThread.get(), SIGNAL(reportOffsetSignal(const QString&)),
+            this, SLOT(updateOffsetSlot(const QString&)));
+    connect(_filterThread.get(), SIGNAL(filterResultSignal(const QString&)),
+            this, SLOT(filterResultSlot(const QString&)));
+
+    long messageIndex = ui->filterMessageIndex->text().toLong();
+
+    _filterThread->topic(topic());
+    _filterThread->partition(partition());
+    _filterThread->offset(_low + messageIndex);
+    _filterThread->consumerPtr(consumerPtr());
+
+    _filterThread->start();
+
+    ui->filterBtn->setEnabled(false);
+}
+
+void PartitionDetailDlg::on_resetFilterBtn_clicked()
+{
+    _filterThread->stop();
+    _filterThread->wait();
+    _filterThread.reset();
+
+    ui->filterBtn->setEnabled(true);
 }

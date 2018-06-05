@@ -7,7 +7,7 @@
 #include "mainwindow.h"
 #include "kafkaconsumer.h"
 #include "kafkabasicconfig.h"
-#include "parserfuncmgr.h"
+#include "libfuncmgr.h"
 
 
 ConnectBrokerDlg::ConnectBrokerDlg(QWidget *parent)
@@ -18,7 +18,7 @@ ConnectBrokerDlg::ConnectBrokerDlg(QWidget *parent)
 
     // ui->_brokerTextEdit->setText(QString("132.228.119.20:29091,132.228.119.20:29092,132.228.119.20:29093"));
     ui->brokers->setText(QString("132.252.8.122:8299"));
-    ParserFuncMgr::inst().loadFunc();
+    LibFuncMgr::inst().loadFuncConfig();
 }
 
 ConnectBrokerDlg::~ConnectBrokerDlg()

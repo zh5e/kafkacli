@@ -8,9 +8,11 @@
 #include <string>
 #include <functional>
 #include <memory>
+#include <mutex>
 
 #include "kafkaconsumer.h"
-#include "parserfuncmgr.h"
+#include "libfuncmgr.h"
+#include "filterthread.h"
 
 
 namespace Ui {
@@ -23,6 +25,7 @@ class PartitionDetailDlg : public QDialog
 
 public:
     using LibraryPtr = std::shared_ptr<QLibrary>;
+    using LockGuard = std::lock_guard<std::mutex>;
 
     explicit PartitionDetailDlg(KafkaConsumer::Ptr pConsumer,
                                 const std::string &topic,
@@ -38,6 +41,11 @@ private slots:
     void on_lastMessageBtn_clicked();
 
     void on_filterBtn_clicked();
+
+    void on_resetFilterBtn_clicked();
+
+    void updateOffsetSlot(const QString &offset);
+    void filterResultSlot(const QString &data);
 
 private:
     bool initView();
@@ -76,8 +84,14 @@ private:
     std::string             _topic;
     int                     _partition;
 
-    int _low;
-    int _high;
+    int _low;   // 低水位
+    int _high;  // 高水位
+
+    // 过滤查找状态任务
+    FilterThread::Ptr _filterThread;
+
+    // ui互斥变量
+    std::mutex _uiMtx;
 };
 
 #endif // PARTITIONDETAILDLG_H

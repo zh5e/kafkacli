@@ -29,7 +29,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -227,6 +227,23 @@
            </property>
            <property name="default">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>消息索引</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="filterMessageIndex"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="resetFilterBtn">
+           <property name="text">
+            <string>重置</string>
            </property>
           </widget>
          </item>

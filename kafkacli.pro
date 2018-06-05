@@ -35,8 +35,9 @@ SOURCES += \
     kafkaconsumer.cpp \
     kafkaeventcb.cpp \
     kafkabasicconfig.cpp \
-    parserfuncmgr.cpp \
-    messagefilterdlg.cpp
+    messagefilterdlg.cpp \
+    libfuncmgr.cpp \
+    filterthread.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -47,8 +48,9 @@ HEADERS += \
     kafkaconfig.h \
     kafkaeventcb.h \
     kafkabasicconfig.h \
-    parserfuncmgr.h \
-    messagefilterdlg.h
+    messagefilterdlg.h \
+    libfuncmgr.h \
+    filterthread.h
 
 FORMS += \
         mainwindow.ui \

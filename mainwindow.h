@@ -22,7 +22,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    bool initTreeView(const QString &arg = QString());
+    bool initTreeView(const QString &substr = QString());
 
     KafkaConsumer::Ptr consumerPtr() {
         return _pConsumer;

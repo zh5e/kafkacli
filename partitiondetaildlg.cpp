@@ -155,10 +155,13 @@ void PartitionDetailDlg::startFilterThread(int64_t offset)
     _filterThread->partition(partition());
     _filterThread->offset(offset);
     _filterThread->consumerPtr(consumerPtr());
+
     auto &filterFunc = getFilterFunc();
     _filterThread->filterFunc(filterFunc);
+
     const auto &filterValue = ui->filterParam->text();
     _filterThread->filterValue(filterValue.toStdString());
+
     auto &parserFunc = getParserFunc();
     _filterThread->parserFunc(parserFunc);
 

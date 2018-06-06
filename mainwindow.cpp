@@ -64,16 +64,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::initTreeView(const QString &arg) {
+bool MainWindow::initTreeView(const QString &substr) {
     QStandardItemModel *pItemModel = dynamic_cast<QStandardItemModel*>(ui->treeView->model());
     pItemModel->setHorizontalHeaderLabels(QStringList() << "主题" << "分区id"
                                           << "主节点" << "replicas" << "isr");
 
-    QRegExp regExp(arg, Qt::CaseInsensitive);
+    QRegExp regExp(substr, Qt::CaseInsensitive);
 
     int row = 0;
     for (const auto &topic : _topics) {
-        if (arg.length() > 0) {
+        if (substr.length() > 0) {
             DLOG << regExp.indexIn(QString::fromStdString(topic.topic));
             if (regExp.indexIn(QString::fromStdString(topic.topic)) >= 0) {
                 insertTopic2View(pItemModel, row ++, topic);

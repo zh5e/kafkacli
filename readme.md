@@ -6,8 +6,15 @@
 # 安装
 
 安装librdkafka
+
 ```sh
 brew install librdkafka
+```
+
+更新图标
+
+```sh
+iconutil -c icns app.iconset
 ```
 
 # 窗口

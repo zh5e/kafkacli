@@ -10,14 +10,15 @@
 #include "libfuncmgr.h"
 
 
-ConnectBrokerDlg::ConnectBrokerDlg(QWidget *parent)
-    : QDialog(parent), ui(new Ui::ConnectBrokerDlg)
+ConnectBrokerDlg::ConnectBrokerDlg( QWidget *parent )
+    : QDialog( parent ), ui( new Ui::ConnectBrokerDlg )
 {
-    ui->setupUi(this);
-    ui->password->setEchoMode(QLineEdit::Password);
+    ui->setupUi( this );
+    ui->password->setEchoMode( QLineEdit::Password );
 
     // ui->_brokerTextEdit->setText(QString("132.228.119.20:29091,132.228.119.20:29092,132.228.119.20:29093"));
-    ui->brokers->setText(QString("132.252.8.122:8299"));
+    ui->brokers->setText( QString( "132.252.8.122:8299" ) );
+    ui->brokers->setText( QString( "135.127.20.39:8091" ) );
     LibFuncMgr::inst().loadFuncConfig();
 }
 
@@ -28,51 +29,53 @@ ConnectBrokerDlg::~ConnectBrokerDlg()
 
 void ConnectBrokerDlg::on_pushButton_clicked()
 {
-    auto failureCb = [&](const std::string & errstr) {
-        QMessageBox::critical(nullptr, QString("异常"),
-                              QString::fromStdString(errstr),
-                               QMessageBox::Ok);
+    auto failureCb = [&]( const std::string & errstr ) {
+        // QMessageBox::critical(nullptr, QString("异常"),
+        //                       QString::fromStdString(errstr),
+        //                        QMessageBox::Ok);
     };
 
     const auto broker = ui->brokers->text().toUtf8().constData();
 
     KafkaBasicConfig kafkaConfig;
-    kafkaConfig << std::make_pair(kafka_config::BROKER_LIST, broker)
-                << std::make_pair(kafka_config::GROUP_ID, "kafkacli")
-                << new KafkaEventCb(failureCb);
+    kafkaConfig << std::make_pair( kafka_config::BROKER_LIST, broker )
+                << std::make_pair( kafka_config::GROUP_ID, "kafkacli" )
+                << new KafkaEventCb( failureCb );
 
     // 检查是否打开了sasl验证
-    if (ui->_enableSasl->checkState() == Qt::CheckState::Checked) {
+    if ( ui->_enableSasl->checkState() == Qt::CheckState::Checked ) {
         std::string username = ui->username->text().toUtf8().constData();
         std::string password = ui->password->text().toUtf8().constData();
 
         DLOG << ui->username->text() << " : " << ui->password->text();
 
-        kafkaConfig << std::make_pair(kafka_config::SASL_MECHANISMS, "PLAIN")
-                    << std::make_pair(kafka_config::SECURITY_PROTOCOL, "sasl_plaintext")
-                    << std::make_pair(kafka_config::SASL_USERNAME, username)
-                    << std::make_pair(kafka_config::SASL_PASSWORD, password);
+        kafkaConfig << std::make_pair( kafka_config::SASL_MECHANISMS, "PLAIN" )
+                    << std::make_pair( kafka_config::SECURITY_PROTOCOL, "sasl_plaintext" )
+                    << std::make_pair( kafka_config::SASL_USERNAME, username )
+                    << std::make_pair( kafka_config::SASL_PASSWORD, password );
     }
 
-    KafkaConsumer *pConsumer = new KafkaConsumer(kafkaConfig);
-    if (!pConsumer->init()) {
-        QMessageBox::critical(nullptr, QString("异常"),
-                              QString("连接失败"), QMessageBox::Ok);
+    KafkaConsumer *pConsumer = new KafkaConsumer( kafkaConfig );
+
+    if ( !pConsumer->init() ) {
+        QMessageBox::critical( nullptr, QString( "异常" ),
+                               QString( "连接失败" ), QMessageBox::Ok );
         return;
     }
 
     KafkaConsumer::TopicVec topics;
-    if (!pConsumer->topics(topics)) {
-        QMessageBox::critical(nullptr, QString("异常"),
-                              QString("连接失败"), QMessageBox::Ok);
+
+    if ( !pConsumer->topics( topics ) ) {
+        QMessageBox::critical( nullptr, QString( "异常" ),
+                               QString( "连接失败" ), QMessageBox::Ok );
         return;
     }
 
     accept();
 
-    auto *pMainWnd = new MainWindow(nullptr);
+    auto *pMainWnd = new MainWindow( nullptr );
     pMainWnd->show();
 
-    pMainWnd->init(KafkaConsumer::Ptr(pConsumer), topics);
+    pMainWnd->init( KafkaConsumer::Ptr( pConsumer ), topics );
     pMainWnd->initTreeView();
 }

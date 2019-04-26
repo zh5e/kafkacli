@@ -134,8 +134,8 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
     int partition = pItem->text().toInt();
     auto *pPartitionDetailDlg = new PartitionDetailDlg(consumerPtr(),
                                                        pTopic, partition, this);
-    // pPartitionDetailDlg->open();
-    pPartitionDetailDlg->show();
+    pPartitionDetailDlg->open();
+    // pPartitionDetailDlg->show();
 }
 
 void MainWindow::on_filterEdit_textChanged(const QString &arg1)
